@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Document</title>
+    <link rel="icon" href="/Blog/img/title_face_64x.png" size="32x32">
+    <script src="/Blog/js/jquery-3.4.1.min.js"></script>
+    <link href="/Blog/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body οncοntextmenu="window.event.returnValue=false" onselectstart="return false">
+    <div class="n_bar"></div>
+    <script>
+        $.ajax({
+            url: "../../WEB_INF/navigation_bar.html", success: function (result) {
+                $(".n_bar").html(result);
+            }
+        });
+    </script>
+    <div class="container" style="margin-top: 60px;">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                按住 <b class="point">d</b> 可连续画 (如果<b class="point">先按鼠标</b>再按d可画直线)<br>
+                按 <b class="point">r</b> 旋转画笔 <br>
+                按 <b class="point">z</b> 水平翻转画笔，按<b class="point">x</b> 垂直翻转画笔 <br>
+                按住 <b class="point">s</b> 可选择区域<br>
+                调整地图宽高会 <b class="point">清空</b> 地图
+            </div>
+            <style>
+                .point {
+                    color: rgb(255, 54, 135);
+                }
+            </style>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-9">
+                <style>
+                    #myContainer canvas {
+                        /* padding: 0px; */
+                        border: 5px solid rgb(201, 201, 201);
+                    }
+
+                    /* #myContainer canvas{
+                        margin: 0px;
+                    } */
+                </style>
+                <div id='myContainer' style="width: 100%; ">
+                </div>
+                <script src="/Blog/js/p5.min.js"></script>
+                <script src="./js/GOL.js"></script>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                <table style="width: 100%; border-spacing:10px; border-collapse: separate;">
+                    <tr>
+                        <td style="width: 40px;">
+                            帧数 <input id="frameRate" type="hidden" min="1" max="100" value="30">
+                        </td>
+                        <td colspan="2"></td>
+                    </tr>
+                    <tr align="center">
+                        <td colspan="3"><b>地图</b> </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 80px;">缩放</td>
+                        <td>
+                            <input id="mainSize" type="range" min="150" max='10000' value="430"
+                                style="transform: rotate(-180deg);width: 95%;">
+                        </td>
+                        <td></td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="1">地图宽度 </td>
+                        <td>
+                            <input id="mapW" type="text" value="500" style="width: 95%;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>地图高度 </td>
+                        <td>
+                            <input id="mapH" type="text" value="400" style="width: 95%;">
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>显示网格 </td>
+                        <td>
+                            <input id="showGird" type="checkbox">
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>左右连通 </td>
+                        <td>
+                            <input id="linkLR" type="checkbox">
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>上下连通 </td>
+                        <td>
+                            <input id="linkUD" type="checkbox">
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button id="cleanMap">清空地图</button>
+                        </td>
+                    </tr>
+                    <tr align="center">
+                        <td colspan="3"><b>演算</b> </td>
+                    </tr>
+
+                    <tr>
+                        <td>演化间隔 </td>
+                        <td>
+                            <input id="calDT" type="text" value="20" style="width: 95%;">
+                        </td>
+                        <td>ms</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button id="start_cal">开始演化</button>
+
+                            <button id="one_step_cal">演化一步</button>
+
+                            <button id="stop_cal">暂停演化</button>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+        <div class="row" style="margin-bottom: 50px;">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div>
+                    <b style="margin-right: 5%;">画笔</b>
+                    橡皮擦模式 <input id="panValue" type="checkBox">
+                </div>
+                <div id="brushes_bar_div"
+                    style="width: 100%; height: 140px;border: 2px solid rgb(128,128,128); overflow-x: scroll ; overflow-y:hidden;">
+                    <style>
+                        #brushes_bar_div::-webkit-scrollbar {
+                            /* width: 10px; 滚动条宽度 */
+                            height: 10px;
+                        }
+
+                        #brushes_bar_div::-webkit-scrollbar-thumb {
+                            border-radius: 1px;
+                            /*滚动条的圆角*/
+                            /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+                            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
+                            background-color: rgb(77, 77, 77);
+                            /*滚动条的背景颜色*/
+                        }
+                    </style>
+                    <table id="brushes_bar" border="0" style=" height: 100%;border-collapse: separate;">
+                        <tr>
+                            <style>
+                                .mBrush {
+                                    transition: all 0.2s ease;
+                                }
+                            </style>
+
+                            <!-- <td
+                                style="text-align:center;vertical-align:middle; padding-left: 10px;padding-right: 10px;">
+                                
+                                <div align="center" style="width:100%;height:80px ">
+                                    <div
+                                        style="width: 80px; height: 80px;margin-left: 10px;margin-right: 10px; border: 1px solid rgb(182,182,182);">
+                                    </div>
+                                </div>
+                                1格笔
+                            </td> -->
+
+                        </tr>
+                    </table>
+                </div>
+                <div>
+                    <b style="margin-right: 5%;">RLE格式转Json</b>
+                </div>
+                <div style="margin-bottom: 50px;">
+                    <form onsubmit="return false">
+                        <textarea id="RLETEXT" name="" id="" cols="80" rows="20" ></textarea> <br>
+                    <button id="cal_RLE" >转换</button>
+                    <input type=button value="全选" onClick="javascript:this.form.RLETEXT.focus();this.form.RLETEXT.select();">
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu">
+        <style>
+            #menu {
+                position: absolute;
+                display: none;
+                width: 100px;
+                box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+                background-color: rgba(0, 0, 0, 0);
+            }
+
+            #menu table {
+                border: 1px solid rgb(198, 198, 198);
+                width: 100.5%;
+                background-color: rgb(230, 230, 230);
+                margin: 0px;
+                padding: 0;
+                border-right: 0px solid #000;
+            }
+
+            .option {
+                width: 100%;
+                height: 40px;
+                padding-left: 10px;
+                /* background-color: rgb(198,198,198); */
+            }
+
+            .option:hover {
+                background-color: rgb(198, 198, 198);
+            }
+        </style>
+        <table border="0">
+            <tr style="width: 100%;">
+                <td class="option" id="createBrush">
+                    生成画笔
+                </td>
+            </tr>
+        </table>
+
+    </div>
+    <div id="createBrushMenu" align="center">
+        <style>
+            #createBrushMenu {
+                width: 280px;
+                padding-top: 15px;
+                padding-bottom: 15px;
+                display: none;
+                position: absolute;
+                /* top:50%; */
+                left: 50%;
+                transform: translate(-50%, -50%);
+                /* height: 150px; */
+                border: 1px solid rgb(218, 218, 218);
+                border-radius: 5px;
+                background-color: rgba(255, 255, 255, 0.9);
+                box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+                -webkit-box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+
+            }
+
+            @supports (backdrop-filter:blur()) or (-webkit-backdrop-filter: blur()) {
+                #createBrushMenu {
+                    backdrop-filter: url(commonfilters.svg#filter);
+                    backdrop-filter: blur(15px);
+                    -webkit-backdrop-filter: blur(15px);
+                    background-color: rgba(255, 255, 255, 0.0);
+                }
+
+                #menu table {
+                    backdrop-filter: url(commonfilters.svg#filter);
+                    backdrop-filter: blur(15px);
+                    -webkit-backdrop-filter: blur(15px);
+                    background-color: rgba(230, 230, 230, 0.2);
+                }
+
+            }
+
+            #createBrushMenu input {
+                margin-top: 10px;
+            }
+        </style>
+        <input type="text" id="brushName" placeholder="画笔名字"><br>
+        <input type="text" id="brushAuthor" placeholder="作者"> <br>
+        <input type="button" id="createThisBrush" value="确定">
+        <input type="button" id="closeCreateBrush" value="取消">
+    </div>
+
+</body>
+<script>
+    $("#showGird").prop("checked", true);
+    $("#frameRate").parent().next().text($("#frameRate").val());
+    $("#frameRate").mousedown(function () {
+        $(document).mousemove(function () {
+            // console.log("18");
+            $("#frameRate").parent().next().text($("#frameRate").val());
+        });
+    });
+
+    $("#brushes_bar_div").on("mousewheel", function () {
+        $("#brushes_bar_div").stop().scrollLeft($("#brushes_bar_div").scrollLeft() + event.deltaY * 0.05).animate({ scrollLeft: $("#brushes_bar_div").scrollLeft() + event.deltaY * 1.5 }, 200);
+
+
+        function cw() {
+            // console.log(event);
+            event.preventDefault && event.preventDefault();
+            event.stopPropagation && event.stopPropagation();
+            // return false;
+        }
+        $(document).on("mousewheel", cw()).remove(cw());
+
+    });
+    $.getJSON("./brush/brushes.json", function (data) {
+        // console.log("1");
+        var _ = 0;
+        $.each(data, function (h, info) {
+            $("#brushes_bar").find("tr").append("" +
+                "<td class='mBrush' " +
+                "style='text-align:center;vertical-align:middle; padding-left: 10px;padding-right: 10px;'>" +
+                "<div align='center' style='width:100%;height:80px '>" +
+                "<div id='mBrush" + _ + "'" +
+                ' style="width: 80px; height: 80px;margin-left: 10px;margin-right: 10px; border: 1px solid rgb(182,182,182);">' +
+                "</div>" +
+                "</div>" +
+                info["name"] +
+                "</td>" +
+                "");
+            // console.log(info["name"]);
+            _++;
+        });
+        $("#brushes_bar").attr("brushNum", _);
+    });
+    // console.log("13");
+    $("#myContainer,#menu").on("cοntextmenu", function () {
+        return false;
+    });
+    //取消画布右键菜单
+    $("#myContainer").on("contextmenu", nocontextmenu);
+    function nocontextmenu() {
+        event.cancelBubble = true;
+        event.returnValue = false;
+
+        return false;
+    }
+    // $("#closeCreateBrush").click(function () {
+    //     $(this).parent().find("input[type=text]").val("");
+    //     $(this).parent().hide();
+    // });
+    // document.oncontextmenu = nocontextmenu;
+    // $(document).on("mousedown",Click);
+    // var s = "x = 3, y = 3 bo$2bo$3o!"
+    var s = ""
+    var temp = "";
+    var start_p = 0;
+    var next_p = 0;
+    var now_dx = 0;
+    var now_dy = 0;
+    let new_brush = { "name": "", "author": "", "size": [], "points": [] };
+    let brush_size=new Array(2);
+    let new_brush_points = new Array();
+    // new_brush["size"]
+    $(cal_RLE).click(function () {
+        s=$("#RLETEXT").val();
+        $("#RLETEXT").val(s);
+        function find_xy(match, p1, p2, offset, string){
+            if(p1=="x"){
+                brush_size[0]=parseInt(p2);
+            }else if(p1=="y"){
+                brush_size[1]=parseInt(p2);
+            }
+            return "";
+        }
+        s=s.replace(/([x|y]) = (\d+)/g, find_xy);
+        new_brush["size"]=brush_size;
+        function find_ob(match, p1, p2, offset, string) {
+            // console.log(p1,p2);
+            
+            if (p2 == "o") {
+                var mStep=1;
+                if (p1 != '') {
+                    mStep = parseInt(p1);
+                }
+                // console.log("mStep:"+mStep);
+                for(var i=now_dx;i<now_dx+mStep;i++){
+                    new_brush_points.push(new Array(i,now_dy));
+                }
+                now_dx+=mStep;
+                
+            }else {
+                if (p1 != '') {
+                    now_dx += parseInt(p1);
+                }else{
+                    now_dx += 1;
+                }
+            }
+            return "";
+        }
+        
+        next_p = s.search(/[\$|!]/);
+        // var step=100;
+        while (s.search(/([o|b])/)>=0) {
+            
+            temp = s.slice(start_p, next_p);
+            // console.log(s);
+            // console.log("temp："+temp);
+            temp=temp.replace(/(\d*)([o|b])/g, find_ob);
+            if(!isNaN(parseInt(temp))){
+                now_dy+=parseInt(temp);
+            }else{
+                now_dy++;
+            }
+            now_dx=0;
+            // console.log("nowdx:"+now_dx);
+            // if(next_p==-1){
+            //     s = s.slice(next_p);
+            // }else{
+                s = s.slice(next_p+1);
+            // }
+            
+
+            next_p = s.search(/[\$|!]/);
+            console.log("s:"+s);
+            // console.log(next_p);
+            
+            // console.log(new_brush_points);
+        }
+        new_brush["points"]=new_brush_points;
+        let new_brush_str=JSON.stringify(new_brush, null,"\t");
+    new_brush_str =new_brush_str.replace(/\[\n\t+(\d+)/g,"[$1");
+    new_brush_str =new_brush_str.replace(/,\n\t+(\d+)/g,",$1");
+    new_brush_str =new_brush_str.replace(/(\d+)\n\t+]/g,"$1]");
+    $("#RLETEXT").val(new_brush_str);
+    // console.log( new_brush_str);
+    });
+
+</script>
+
+</html>
