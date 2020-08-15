@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Document</title>
+    <title>生命游戏</title>
     <link rel="icon" href="/Blog/img/title_face_64x.png" size="32x32">
     <script src="/Blog/js/jquery-3.4.1.min.js"></script>
     <link href="/Blog/css/bootstrap.min.css" rel="stylesheet">
@@ -23,7 +22,8 @@
     <div class="container" style="margin-top: 60px;">
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12">
-                按住 <b class="point">d</b> 可连续画 (如果<b class="point">先按鼠标</b>再按d可画直线)<br>
+                按住 <b class="point" style="color: rgb(255, 54, 135);">d</b> 可连续画 (如果<b
+                    class="point">先按鼠标</b>再按d可画直线)<br>
                 按 <b class="point">r</b> 旋转画笔 <br>
                 按 <b class="point">z</b> 水平翻转画笔，按<b class="point">x</b> 垂直翻转画笔 <br>
                 按住 <b class="point">s</b> 可选择区域<br>
@@ -50,7 +50,7 @@
                 <div id='myContainer' style="width: 100%; ">
                 </div>
                 <script src="/Blog/js/p5.min.js"></script>
-                <script src="./js/GOL.js"></script>
+
             </div>
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
                 <table style="width: 100%; border-spacing:10px; border-collapse: separate;">
@@ -103,6 +103,13 @@
                         <td>上下连通 </td>
                         <td>
                             <input id="linkUD" type="checkbox">
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>精准显示 </td>
+                        <td>
+                            <input id="blurDebug" type="checkbox">
                         </td>
                         <td></td>
                     </tr>
@@ -165,7 +172,18 @@
                                     transition: all 0.2s ease;
                                 }
                             </style>
-
+                            <script>
+                                // $.getJSON("./brush/brushes.json", function (data) {
+                                //     console.log("1");
+                                //     var _ = 0;
+                                //     $.each(data, function (h, info) {
+                                        
+                                //         // console.log(info["name"]);
+                                //         _++;
+                                //     });
+                                //     $("#brushes_bar").attr("brushNum", _);
+                                // });
+                            </script>
                             <!-- <td
                                 style="text-align:center;vertical-align:middle; padding-left: 10px;padding-right: 10px;">
                                 
@@ -179,18 +197,24 @@
 
                         </tr>
                     </table>
+
                 </div>
-                <div>
-                    <b style="margin-right: 5%;">RLE格式转Json</b>
+                <div style="display: none;">
+                    <div>
+                        <b style="margin-right: 5%;">RLE格式转Json</b>
+                    </div>
+                    <div style="margin-bottom: 50px;">
+                        <form onsubmit="return false">
+                            <textarea id="RLETEXT" name="" id="" cols="80" rows="20"></textarea> <br>
+                            <button id="cal_RLE">转换</button>
+                            <button id="str_RLE">转字符串</button>
+                            <input type=button value="全选"
+                                onClick="javascript:this.form.RLETEXT.focus();this.form.RLETEXT.select();">
+                        </form>
+
+                    </div>
                 </div>
-                <div style="margin-bottom: 50px;">
-                    <form onsubmit="return false">
-                        <textarea id="RLETEXT" name="" id="" cols="80" rows="20" ></textarea> <br>
-                    <button id="cal_RLE" >转换</button>
-                    <input type=button value="全选" onClick="javascript:this.form.RLETEXT.focus();this.form.RLETEXT.select();">
-                    </form>
-                    
-                </div>
+
             </div>
         </div>
     </div>
@@ -282,6 +306,7 @@
     </div>
 
 </body>
+<script src="./js/GOL.js"></script>
 <script>
     $("#showGird").prop("checked", true);
     $("#frameRate").parent().next().text($("#frameRate").val());
@@ -293,7 +318,7 @@
     });
 
     $("#brushes_bar_div").on("mousewheel", function () {
-        $("#brushes_bar_div").stop().scrollLeft($("#brushes_bar_div").scrollLeft() + event.deltaY * 0.05).animate({ scrollLeft: $("#brushes_bar_div").scrollLeft() + event.deltaY * 1.5 }, 200);
+        $("#brushes_bar_div").stop().scrollLeft($("#brushes_bar_div").scrollLeft() + event.deltaY * 0.1).animate({ scrollLeft: $("#brushes_bar_div").scrollLeft() + event.deltaY * 1.5 }, 200);
 
 
         function cw() {
@@ -305,26 +330,10 @@
         $(document).on("mousewheel", cw()).remove(cw());
 
     });
-    $.getJSON("./brush/brushes.json", function (data) {
-        // console.log("1");
-        var _ = 0;
-        $.each(data, function (h, info) {
-            $("#brushes_bar").find("tr").append("" +
-                "<td class='mBrush' " +
-                "style='text-align:center;vertical-align:middle; padding-left: 10px;padding-right: 10px;'>" +
-                "<div align='center' style='width:100%;height:80px '>" +
-                "<div id='mBrush" + _ + "'" +
-                ' style="width: 80px; height: 80px;margin-left: 10px;margin-right: 10px; border: 1px solid rgb(182,182,182);">' +
-                "</div>" +
-                "</div>" +
-                info["name"] +
-                "</td>" +
-                "");
-            // console.log(info["name"]);
-            _++;
-        });
-        $("#brushes_bar").attr("brushNum", _);
-    });
+
+    // $(document).ready(function(){
+
+    // });
     // console.log("13");
     $("#myContainer,#menu").on("cοntextmenu", function () {
         return false;
@@ -351,83 +360,99 @@
     var now_dx = 0;
     var now_dy = 0;
     let new_brush = { "name": "", "author": "", "size": [], "points": [] };
-    let brush_size=new Array(2);
+    let brush_size = new Array(2);
     let new_brush_points = new Array();
     // new_brush["size"]
     $(cal_RLE).click(function () {
-        s=$("#RLETEXT").val();
-        $("#RLETEXT").val(s);
-        function find_xy(match, p1, p2, offset, string){
-            if(p1=="x"){
-                brush_size[0]=parseInt(p2);
-            }else if(p1=="y"){
-                brush_size[1]=parseInt(p2);
+        s = $("#RLETEXT").val();
+        function find_xy(match, p1, p2, offset, string) {
+            if (p1 == "x") {
+                brush_size[0] = parseInt(p2);
+            } else if (p1 == "y") {
+                brush_size[1] = parseInt(p2);
             }
             return "";
         }
-        s=s.replace(/([x|y]) = (\d+)/g, find_xy);
-        new_brush["size"]=brush_size;
+
+        s = s.replace(/#(\w) [^\|\f\n\r\t\v]+[\n|(\|\s) ]/g, "");
+
+        s = s.replace(/([x|y]) = (\d+)/g, find_xy);
+        s = s.replace(/rule = ([b|B]\d+)\/([s|S]\d+)/, "");
+        s = s.replace(/\|/g, "");
+        // console.log(s);
+        new_brush["size"] = brush_size;
         function find_ob(match, p1, p2, offset, string) {
             // console.log(p1,p2);
-            
+
             if (p2 == "o") {
-                var mStep=1;
+                var mStep = 1;
                 if (p1 != '') {
                     mStep = parseInt(p1);
                 }
                 // console.log("mStep:"+mStep);
-                for(var i=now_dx;i<now_dx+mStep;i++){
-                    new_brush_points.push(new Array(i,now_dy));
+                // console.log("now_dx:"+now_dx);
+                for (var i = now_dx; i < now_dx + mStep; i++) {
+                    new_brush_points.push(new Array(i, now_dy));
                 }
-                now_dx+=mStep;
-                
-            }else {
+                now_dx += mStep;
+
+            } else {
+                // console.log("now_dx:"+now_dx+" p1:"+p1);
                 if (p1 != '') {
+
                     now_dx += parseInt(p1);
-                }else{
+
+                } else {
                     now_dx += 1;
                 }
             }
             return "";
         }
-        
+
         next_p = s.search(/[\$|!]/);
-        // var step=100;
-        while (s.search(/([o|b])/)>=0) {
-            
+        var step = brush_size[1] + 2;
+        // console.log(step);
+        while (s.search(/([o|b])/) >= 0 && step--) {
+            // console.log(step);
             temp = s.slice(start_p, next_p);
             // console.log(s);
             // console.log("temp："+temp);
-            temp=temp.replace(/(\d*)([o|b])/g, find_ob);
-            if(!isNaN(parseInt(temp))){
-                now_dy+=parseInt(temp);
-            }else{
+            temp = temp.replace(/(\d*)([o|b])/g, find_ob);
+            if (!isNaN(parseInt(temp))) {
+                now_dy += parseInt(temp);
+            } else {
                 now_dy++;
             }
-            now_dx=0;
+            now_dx = 0;
             // console.log("nowdx:"+now_dx);
             // if(next_p==-1){
             //     s = s.slice(next_p);
             // }else{
-                s = s.slice(next_p+1);
+            s = s.slice(next_p + 1);
             // }
-            
+
 
             next_p = s.search(/[\$|!]/);
-            console.log("s:"+s);
+            // console.log("s:"+s);
             // console.log(next_p);
-            
+
             // console.log(new_brush_points);
         }
-        new_brush["points"]=new_brush_points;
-        let new_brush_str=JSON.stringify(new_brush, null,"\t");
-    new_brush_str =new_brush_str.replace(/\[\n\t+(\d+)/g,"[$1");
-    new_brush_str =new_brush_str.replace(/,\n\t+(\d+)/g,",$1");
-    new_brush_str =new_brush_str.replace(/(\d+)\n\t+]/g,"$1]");
-    $("#RLETEXT").val(new_brush_str);
-    // console.log( new_brush_str);
+        // console.log(s);
+        new_brush["points"] = new_brush_points;
+        let new_brush_str = JSON.stringify(new_brush, null, "\t");
+        new_brush_str = new_brush_str.replace(/\[\n\t+(\d+)/g, "[$1");
+        new_brush_str = new_brush_str.replace(/,\n\t+(\d+)/g, ",$1");
+        new_brush_str = new_brush_str.replace(/(\d+)\n\t+]/g, "$1]");
+        $("#RLETEXT").val(new_brush_str);
+        // console.log( new_brush_str);
     });
-
+    $("#str_RLE").click(function () {
+        s = $("#RLETEXT").val();
+        s = s.replace(/\n/g, "|");
+        // console.log(s);
+        $("#RLETEXT").val(s);
+    });
 </script>
 
 </html>
